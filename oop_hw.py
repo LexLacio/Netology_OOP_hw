@@ -1,3 +1,6 @@
+students_list = []
+lecturer_list = []
+
 class Student:
     def __init__(self, name, surname, gender):
         self.name = name
@@ -6,6 +9,7 @@ class Student:
         self.finished_courses = []
         self.courses_in_progress = []
         self.grades = {}
+        students_list.append(self)
         
     def rate_lecturer(self, lecturer, course, grade):
         if isinstance(lecturer, Lecturer) and course in self.courses_in_progress and course in lecturer.courses_attached:
@@ -48,6 +52,7 @@ class Lecturer(Mentor):
     def __init__(self, name, surname):
         super().__init__(name, surname) 
         self.lecturer_grades = {}   
+        lecturer_list.append(self)
 
     def av_grade(self):
         average_grade = 0
@@ -83,17 +88,88 @@ class Reviewer(Mentor):
         return res
 
 
+def av_grade_per_course(course_name):
+    student_av_grade = 0
+    counter = 0
+    for student in students_list:
+        if course_name in student.courses_in_progress:
+            student_av_grade += student.stud_av_grade()
+            counter += 1 
+        else:
+            print("Нет оценок по данному курсу")
+            return
+    result = round(student_av_grade / counter, 2)
+    print(f'Срудний бал за д/з по курсу {course_name} - {result}')
+    return  
+
+def av_lecturer_grade_per_course(course_name):
+    lecturer_av_grade = 0
+    counter = 0
+    for lecturer in lecturer_list:
+        if course_name in lecturer.courses_attached:
+            lecturer_av_grade += lecturer.av_grade()
+            counter += 1 
+        else:
+            print("Нет оценок по данному курсу")
+            return
+    result = round(lecturer_av_grade / counter, 2)
+    print(f'Срудний бал за лекции по курсу {course_name} - {result}')
+    return
+    
+# Тестирование работы классов и функций:
+
 Oleg = Lecturer("Олег", "Булыгин")
 Oleg.courses_attached += ['Python', 'Java']
+
+Elena = Lecturer("Елена", "Никитина")
+Elena.courses_attached += ['Python']
 
 Alex = Reviewer("Александр","Бардин")
 Alex.courses_attached += ['Python']
 
-best_student = Student('Иван', 'Иванов', 'муж')
-best_student.courses_in_progress += ['Python']
-best_student.rate_lecturer(Oleg,'Python', 9)
+Phill = Reviewer("Филлип","Воронов")
+Phill.courses_attached += ['Python']
 
-Alex.rate_hw(best_student, 'Python', 8)
+Ivan = Student('Иван', 'Иванов', 'муж')
+Ivan.courses_in_progress += ['Python']
+Ivan.rate_lecturer(Oleg,'Python', 9)
 
-print(f'{best_student.surname} {best_student.name} - оценка за д/з по {best_student.grades}')
-print(f'{Oleg.surname} {Oleg.name} - оценка за лекцию по {Oleg.lecturer_grades}')
+Nick = Student('Nikolay', 'Nikolaev', 'man')
+Nick.courses_in_progress += ['Python']
+Nick.rate_lecturer(Oleg,'Python', 10)
+
+Maxim = Student('Maxim', 'Maximus', 'man')
+Maxim.courses_in_progress += ['Python']
+Maxim.rate_lecturer(Oleg,'Python', 5)
+Maxim.rate_lecturer(Elena,'Python', 6)
+
+Alex.rate_hw(Ivan, 'Python', 8)
+Alex.rate_hw(Nick, 'Python', 3)
+Alex.rate_hw(Maxim, 'Python', 7)
+Phill.rate_hw(Ivan, 'Python', 10)
+Phill.rate_hw(Nick, 'Python', 5)
+Phill.rate_hw(Maxim, 'Python', 5)
+
+print(Oleg)
+print()
+print(Elena)
+print()
+print(Alex)
+print()
+print(Phill)
+print()
+print(Ivan)
+print()
+print(Nick)
+print()
+print(Maxim)
+print()
+print(Elena<Oleg)
+print()
+print(Maxim>Ivan)
+print()
+av_grade_per_course("Python")  
+print()
+av_lecturer_grade_per_course("Python")
+print()
+av_lecturer_grade_per_course("Java") 
